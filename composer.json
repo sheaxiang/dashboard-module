@@ -7,6 +7,9 @@
             "email": "sheaxiang@126.com"
         }
     ],
+    "require": {
+        "php": ">=5.6.4"
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -21,5 +24,7 @@
         "psr-4": {
             "Modules\\Dashboard\\": ""
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

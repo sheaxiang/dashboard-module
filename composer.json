@@ -18,8 +18,8 @@
             "providers": [
                 "Modules\\Dashboard\\Providers\\DashboardServiceProvider"
             ],
-            "aliases": {
-                
+            "installer-paths": {
+                "your/custom/path/dashboard/": ["sheaxiang/module-dashboard", "vendor/package"]
             }
         }
     },
@@ -28,14 +28,6 @@
             "Modules\\Dashboard\\": ""
         }
     },
-    "require-dev": {
-    "friendsofphp/php-cs-fixer": "^1.11"
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "3.0.x-dev"
-    }
-  },
   "minimum-stability": "dev",
   "prefer-stable": true
 }

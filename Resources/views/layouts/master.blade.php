@@ -7,13 +7,13 @@
         <title>Module Dashboard</title>
 
        <!-- Laravel Mix - CSS File -->
-       <!-- <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}"> -->
+       <!-- <link rel="stylesheet" href="{{ mix('css/dashboard.css') }}"> -->
 
     </head>
     <body>
         @yield('content')
 
         <!-- Laravel Mix - JS File -->
-        <!-- <script src="{{ asset('js/dashboard.js') }}"></script> -->
+        <!-- <script src="{{ mix('js/dashboard.js') }}"></script> -->
     </body>
 </html>

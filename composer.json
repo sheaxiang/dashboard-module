@@ -22,7 +22,7 @@
             }
         },
         "installer-paths": {
-            "sites/example.com/modules/module": ["vendor/package"]
+            "sites/example.com/modules/dashboard": ["vendor/package"]
         }
     },
     "autoload": {

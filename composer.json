@@ -31,36 +31,3 @@
         }
     }
 }
-{
-    "name": "sheaxiang/module-dashboard",
-    "type": "sheaxiang-module",
-    "description": "",
-    "authors": [
-        {
-            "name": "sheaxiang",
-            "email": "sheaxiang@126.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.6.4",
-        "composer/installers": "~1.0"
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Modules\\Dashboard\\Providers\\DashboardServiceProvider"
-            ],
-            "aliases": {
-                
-            }
-        },
-        "installer-paths": {
-            "sites/example.com/modules/module": ["vendor/package"]
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "Modules\\Dashboard\\": ""
-        }
-    }
-}

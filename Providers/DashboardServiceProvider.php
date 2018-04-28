@@ -3,10 +3,20 @@
 namespace Modules\Dashboard\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Factory;
+use Modules\Core\Events\BuildingSidebar;
+use Modules\Core\Events\LoadingBackendTranslations;
+use Modules\Core\Traits\CanGetSidebarClassForModule;
+use Modules\Core\Traits\CanPublishConfiguration;
+use Modules\Dashboard\Entities\Widget;
+use Modules\Dashboard\Events\Handlers\RegisterDashboardSidebar;
+use Modules\Dashboard\Repositories\Cache\CacheWidgetDecorator;
+use Modules\Dashboard\Repositories\Eloquent\EloquentWidgetRepository;
+use Modules\Dashboard\Repositories\WidgetRepository;
+use Modules\Workshop\Manager\StylistThemeManager;
 
 class DashboardServiceProvider extends ServiceProvider
 {
+    use CanPublishConfiguration, CanGetSidebarClassForModule;
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -15,90 +25,47 @@ class DashboardServiceProvider extends ServiceProvider
     protected $defer = false;
 
     /**
-     * Boot the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->registerTranslations();
-        $this->registerConfig();
-        $this->registerViews();
-        $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
-    }
-
-    /**
      * Register the service provider.
      *
      * @return void
      */
     public function register()
     {
-        //
-    }
+        $this->app->bind(WidgetRepository::class, function () {
+            $repository = new EloquentWidgetRepository(new Widget());
 
-    /**
-     * Register config.
-     *
-     * @return void
-     */
-    protected function registerConfig()
-    {
-        $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('dashboard.php'),
-        ], 'config');
-        $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'dashboard'
+            if (! config('app.cache')) {
+                return $repository;
+            }
+
+            return new CacheWidgetDecorator($repository);
+        });
+
+        $this->app['events']->listen(
+            BuildingSidebar::class,
+            $this->getSidebarClassForModule('dashboard', RegisterDashboardSidebar::class)
         );
+
+        $this->app['events']->listen(LoadingBackendTranslations::class, function (LoadingBackendTranslations $event) {
+            $event->load('dashboard', array_dot(trans('dashboard::dashboard')));
+        });
     }
 
-    /**
-     * Register views.
-     *
-     * @return void
-     */
-    public function registerViews()
+    public function boot(StylistThemeManager $theme)
     {
-        $viewPath = resource_path('views/modules/dashboard');
-
-        $sourcePath = __DIR__.'/../Resources/views';
-
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            __DIR__ . '/../Resources/views' => base_path('resources/views/asgard/dashboard'),
+        ], 'views');
 
-        $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path . '/modules/dashboard';
-        }, \Config::get('view.paths')), [$sourcePath]), 'dashboard');
-    }
+        $this->app['view']->prependNamespace(
+            'dashboard',
+            $theme->find(config('asgard.core.core.admin-theme'))->getPath() . '/views/modules/dashboard'
+        );
 
-    /**
-     * Register translations.
-     *
-     * @return void
-     */
-    public function registerTranslations()
-    {
-        $langPath = resource_path('lang/modules/dashboard');
-
-        if (is_dir($langPath)) {
-            $this->loadTranslationsFrom($langPath, 'dashboard');
-        } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'dashboard');
-        }
-    }
-
-    /**
-     * Register an additional directory of factories.
-     * 
-     * @return void
-     */
-    public function registerFactories()
-    {
-        if (! app()->environment('production')) {
-            app(Factory::class)->load(__DIR__ . '/../Database/factories');
-        }
+        $this->publishConfig('dashboard', 'permissions');
+        $this->publishConfig('dashboard', 'config');
+        $this->publishConfig('dashboard', 'settings');
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
 
     /**
@@ -108,6 +75,6 @@ class DashboardServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return [];
+        return array();
     }
 }
